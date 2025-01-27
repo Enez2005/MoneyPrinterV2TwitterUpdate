@@ -180,20 +180,27 @@ def main():
                 nickname = question(" => Enter a nickname for this account: ")
                 fp_profile = question(" => Enter the path to the Firefox profile: ")
                 topic = question(" => Enter the account topic: ")
+                user_input = question(" => Do you want to set up a Custom prompt? (Yes/No): ")
+
+                if user_input.lower() == "yes":
+                    prompt = question(" => Generate a Twitter post about: [{topic}]. [Here will be your prompt]:\n")
+                else:
+                    prompt = "The Limit is 2 sentences. Choose a specific sub-topic of the provided topic."
 
                 add_account("twitter", {
                     "id": generated_uuid,
                     "nickname": nickname,
                     "firefox_profile": fp_profile,
                     "topic": topic,
+                    "prompt": prompt,
                     "posts": []
                 })
         else:
             table = PrettyTable()
-            table.field_names = ["ID", "UUID", "Nickname", "Account Topic"]
+            table.field_names = ["ID", "UUID", "Nickname", "Account Topic", "Prompt"]
 
             for account in cached_accounts:
-                table.add_row([cached_accounts.index(account) + 1, colored(account["id"], "cyan"), colored(account["nickname"], "blue"), colored(account["topic"], "green")])
+                table.add_row([cached_accounts.index(account) + 1, colored(account["id"], "cyan"), colored(account["nickname"], "blue"), colored(account["topic"], "green"), colored(account["prompt"][:30], "yellow")])
 
             print(table)
 
@@ -209,7 +216,7 @@ def main():
                 error("Invalid account selected. Please try again.", "red")
                 main()
             else:
-                twitter = Twitter(selected_account["id"], selected_account["nickname"], selected_account["firefox_profile"], selected_account["topic"])
+                twitter = Twitter(selected_account["id"], selected_account["nickname"], selected_account["firefox_profile"], selected_account["topic"], selected_account["prompt"])
 
                 while True:
                     
@@ -276,8 +283,13 @@ def main():
                             success("Set up CRON Job.")
                         else:
                             break
-
                     elif user_input == 5:
+                        info(f"Changing the prompt to a custom one [Current Prompt: {selected_account['prompt']}]:")
+                        new_prompt = question(" => Enter the new prompt: ")
+
+                        update_account("twitter", selected_account["id"], "prompt", new_prompt)
+
+                    elif user_input == 6:
                         if get_verbose():
                             info(" => Climbing Options Ladder...", False)
                         break
