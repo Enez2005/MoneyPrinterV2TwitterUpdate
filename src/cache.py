@@ -111,6 +111,15 @@ def add_account(provider: str, account: dict) -> None:
                 "accounts": accounts
             }, file, indent=4)
 
+def update_account(provider: str , account_id: str, parameter: str) -> None:
+    # Get the provider cache path
+    if provider == "twitter":
+        cache_path = get_twitter_cache_path()
+
+    # Read the cache file
+    with open(cache_path, 'r') as file:
+        data = json.load(file)
+
 def remove_account(account_id: str) -> None:
     """
     Removes an account from the cache.
